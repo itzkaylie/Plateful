@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plateful · The fridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="shared.js" defer></script>
+  <script src="fridge.js" defer></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">Plateful<small>by Byte &amp; Bite</small></a>
+    <nav class="topnav" aria-label="Pages">
+      <a href="main.html">Kitchen</a>
+      <a href="fridge.html" aria-current="page">Fridge</a>
+      <a href="recipe.html">Recipe book</a>
+      <a href="search.html">Find recipes</a>
+    </nav>
+  </header>
+
+  <main class="page with-side">
+    <div>
+      <h1 class="sr-only">The fridge</h1>
+
+      <!-- Open-fridge art. The camera on the empty shelf opens the photo picker. -->
+      <div class="stage open-fridge">
+        <img class="stage-bg pixel" src="background02.png" alt="" width="1536" height="854">
+        <!-- The real file input. It's hidden visually but still works with the keyboard. -->
+        <input class="sr-only" id="photo" type="file" accept="image/*" capture="environment">
+        <label class="hotspot camera-spot" for="photo">
+          <img class="pixel" src="camera.png" alt="" width="133" height="104">
+          <span class="hotspot-label">Snap a photo</span>
+          <span class="sr-only">Take or choose a photo of your fridge</span>
+        </label>
+      </div>
+
+      <!-- Step 1: scan -->
+      <section class="panel" aria-labelledby="scan-title" style="margin-top:16px">
+        <h2 id="scan-title" class="pixel-title">1 · Scan the fridge</h2>
+        <p class="hint" id="phone-hint" hidden>
+          📱 Phone mode: snap your fridge here. The ingredients will show up on your laptop too.
+        </p>
+        <p class="hint">Tap the camera (or the button below), take a clear photo of your open fridge, then scan it.</p>
+        <div class="btn-row">
+          <label class="btn secondary" for="photo">📷 Take or choose a photo</label>
+          <button class="btn primary" id="scan" type="button" disabled>Scan my fridge</button>
+        </div>
+        <img class="preview" id="preview" alt="Preview of your fridge photo" hidden>
+        <p class="status" id="scan-status" role="status"></p>
+      </section>
+
+      <!-- Step 2: review -->
+      <section class="panel" id="review" aria-labelledby="review-title">
+        <h2 id="review-title" class="pixel-title">2 · Review the ingredients</h2>
+        <p class="hint">Remove anything the scan got wrong, and add anything it missed.</p>
+        <ul class="ingredient-list" id="ingredients"></ul>
+        <p class="hint" id="no-ingredients">Nothing here yet. Scan your fridge, or type ingredients in below.</p>
+
+        <form class="add-form" id="add-form">
+          <label class="sr-only" for="add-input">Add an ingredient</label>
+          <input id="add-input" type="text" placeholder="Add an ingredient, e.g. eggs" maxlength="60" autocomplete="off">
+          <button class="btn secondary" type="submit">Add</button>
+        </form>
+
+        <div class="btn-row">
+          <button class="btn primary" id="review-done" type="button" disabled>Looks good → choose a recipe</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <section class="panel" aria-labelledby="quest-title">
+        <h2 id="quest-title" class="pixel-title">Tonight's quest</h2>
+        <div id="quest"></div>
+      </section>
+
+      <!-- Shown on the laptop only: scan this to use your phone camera. -->
+      <section class="panel" id="qr-panel" aria-labelledby="qr-title">
+        <h2 id="qr-title" class="pixel-title">Use your phone</h2>
+        <p class="hint">Scan this QR code with your phone to snap the fridge there. The results will pop up here.</p>
+        <div class="qr-box" id="qrcode" role="img" aria-label="QR code that opens the fridge scanner on your phone"></div>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

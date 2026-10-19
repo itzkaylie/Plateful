@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plateful · Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="shared.js" defer></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">Plateful<small>by Byte &amp; Bite</small></a>
+    <nav class="topnav" aria-label="Pages">
+      <a href="main.html" aria-current="page">Kitchen</a>
+      <a href="fridge.html">Fridge</a>
+      <a href="recipe.html">Recipe book</a>
+      <a href="search.html">Find recipes</a>
+    </nav>
+  </header>
+
+  <main class="page with-side">
+    <!-- The pixel-art kitchen. Fridge and recipe book are the "hotspots". -->
+    <section aria-labelledby="kitchen-title">
+      <h1 id="kitchen-title" class="sr-only">Your kitchen</h1>
+      <div class="stage kitchen">
+        <img class="stage-bg pixel" src="background.png" alt="" width="1536" height="865">
+
+        <a class="hotspot fridge-spot" id="fridge-spot" href="fridge.html">
+          <img class="pixel" src="fridgeclosed.png" alt="" width="544" height="1024">
+          <span class="hotspot-label">Fridge</span>
+          <span class="quest-marker" aria-hidden="true">!</span>
+          <span class="sr-only">Open the fridge to take a photo and find out what's inside</span>
+        </a>
+
+        <a class="hotspot book-spot" id="book-spot" href="recipe.html">
+          <img class="pixel" src="recipe book.png" alt="" width="306" height="215">
+          <span class="hotspot-label">Recipe book</span>
+          <span class="quest-marker" aria-hidden="true">!</span>
+          <span class="sr-only">Open the recipe book to choose, save and shop for recipes</span>
+        </a>
+      </div>
+      <p class="hint" style="margin-top:12px">
+        Tap the <strong>Fridge</strong> to take a photo of your fridge and see what recipes you can make.
+        Tap the <strong>Recipe book</strong> to pick recipes, see your saved ones and your shopping list.
+      </p>
+    </section>
+
+    <aside class="side">
+      <section class="panel" aria-labelledby="quest-title">
+        <h2 id="quest-title" class="pixel-title">Tonight's quest</h2>
+        <div id="quest"></div>
+        <div class="btn-row">
+          <a class="btn primary" id="next-step" href="fridge.html">Start: scan the fridge</a>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    // Kitchen page: point the bouncing "!" and the big button at the next quest step.
+    const nextButtonText = [
+      ["Start: scan the fridge", "fridge.html"],
+      ["Next: review ingredients", "fridge.html#review"],
+      ["Next: choose a recipe", "recipe.html"],
+      ["Next: save it or shop", "recipe.html#tonight"],
+      ["See your recipe book", "recipe.html#book"]
+    ];
+
+    function updateKitchen(current) {
+      const [text, link] = nextButtonText[current];
+      const nextButton = document.getElementById("next-step");
+      nextButton.textContent = text;
+      nextButton.href = link;
+
+      // Steps 1–2 happen at the fridge, steps 3–4 at the recipe book.
+      document.getElementById("fridge-spot").classList.toggle("is-next", current <= 1);
+      document.getElementById("book-spot").classList.toggle("is-next", current === 2 || current === 3);
+    }
+
+    document.addEventListener("quest-updated", event => updateKitchen(event.detail.current));
+
+    // Wait until shared.js has loaded, then set things up.
+    document.addEventListener("DOMContentLoaded", () => {
+      updateKitchen(currentStepIndex());
+      if (!isPhone) watchForPhoneScans();
+    });
+  </script>
+</body>
+</html>

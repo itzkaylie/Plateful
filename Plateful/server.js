@@ -9,6 +9,8 @@
 //   POST /api/scan         photo in, {"items":[...]} out (saved for this session)
 //   GET  /api/latest-scan  the last scan saved for this session (or null)
 //   POST /api/recipes      {"items":[...]} in, {"recipes":[...]} out
+//   POST /api/search-recipes  {"query":"..."} in, real web results from Tavily search out
+//                             (key: TAVILY_API_KEY, also server-only)
 
 const http = require("node:http");
 const fs = require("node:fs");
@@ -29,11 +31,13 @@ const files = {
   "/main.html": "main.html",
   "/fridge.html": "fridge.html",
   "/recipe.html": "recipe.html",
+  "/search.html": "search.html",
   "/camera.html": "camera.html",
   "/style.css": "style.css",
   "/shared.js": "shared.js",
   "/fridge.js": "fridge.js",
   "/recipe.js": "recipe.js",
+  "/search.js": "search.js",
   "/background.png": "background.png",
   "/background01.jpg": "background01.jpg",
   "/background02.png": "background02.png",
@@ -215,6 +219,157 @@ Return only JSON in this format:
   }
 }
 
+// ---------- Find Recipes: real web results from Tavily search ----------
+// We only pass along what a search engine shows: title, link, site name,
+// a short snippet and a picture. We never copy the recipe itself;
+// people click through to the original website to read it.
+
+const TAVILY_URL = "https://api.tavily.com/search";
+
+// Remember recent searches for 10 minutes, so repeating a search
+// (or pressing Back) doesn't use up the free monthly searches.
+const searchCache = new Map();
+const SEARCH_CACHE_MS = 10 * 60 * 1000;
+
+// Only allow normal web links (http or https).
+function safeUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+// Tavily doesn't send the website's name, so we guess it:
+// "Chocolate Chip Cookies - Preppy Kitchen" -> "Preppy Kitchen".
+// If the title doesn't end with a name, use the web address ("bromabakery.com").
+function siteName(title, url) {
+  const parts = title.split(/\s+[|\-–—]\s+/);
+  const last = parts.length > 1 ? parts[parts.length - 1].trim() : "";
+  if (last.length >= 3 && last.length <= 30 && !/recipe/i.test(last)) return last;
+  return new URL(url).hostname.replace(/^www\./, "");
+}
+
+// Turns the page text Tavily sends into a short, tidy preview.
+function shortSnippet(text) {
+  const clean = String(text || "")
+    .replace(/^#+.*$/gm, "")                   // drop headings (usually the title again)
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1") // [link text](url) -> link text
+    .replace(/\b(jump to|print|pin) recipe\b/gi, "") // recipe-site buttons
+    .replace(/[#*_>`|]+/g, " ")               // leftover formatting symbols
+    .replace(/\s+/g, " ")
+    .trim();
+  if (clean.length <= 220) return clean;
+  return clean.slice(0, 220).replace(/\s+\S*$/, "") + "…";
+}
+
+// The first picture from that page, if Tavily found one.
+function firstImage(result) {
+  const images = Array.isArray(result.images) ? result.images : [];
+  for (const image of images) {
+    const url = safeUrl(typeof image === "string" ? image : image && image.url);
+    if (url && url.startsWith("https:")) return url;
+  }
+  return null;
+}
+
+// Turns one Tavily result into the small object the page needs.
+function toRecipeResult(result) {
+  const url = safeUrl(result.url);
+  const title = String(result.title || "").replace(/\s+/g, " ").trim();
+  if (!url || !title) return null;
+
+  return {
+    title: title.slice(0, 200),
+    url,
+    site: siteName(title, url).slice(0, 80),
+    snippet: shortSnippet(result.content),
+    image: firstImage(result)
+  };
+}
+
+async function handleSearchRecipes(request, response) {
+  let query;
+  try {
+    const body = await readBody(request, 10 * 1024);
+    query = String(JSON.parse(body.toString("utf8")).query || "").trim().replace(/\s+/g, " ");
+  } catch (error) {
+    sendJson(response, 400, { error: "Send your search as {\"query\":\"...\"}." });
+    return;
+  }
+  if (query.length < 2 || query.length > 100) {
+    sendJson(response, 400, { error: "Type between 2 and 100 characters to search." });
+    return;
+  }
+
+  if (!process.env.TAVILY_API_KEY) {
+    console.error("TAVILY_API_KEY is not set on the server.");
+    sendJson(response, 503, { error: "Recipe search isn't set up yet (the server is missing its search key)." });
+    return;
+  }
+
+  // Add the word "recipe" unless the person already typed it.
+  const searchText = /\brecipes?\b/i.test(query) ? query : `${query} recipe`;
+
+  const cached = searchCache.get(searchText.toLowerCase());
+  if (cached && Date.now() - cached.time < SEARCH_CACHE_MS) {
+    sendJson(response, 200, cached.data);
+    return;
+  }
+
+  try {
+    const tavilyResponse = await fetch(TAVILY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.TAVILY_API_KEY}`
+      },
+      body: JSON.stringify({
+        query: searchText,
+        search_depth: "basic", // "basic" uses 1 free credit per search
+        max_results: 8,
+        include_images: true,  // pictures from each page, when available
+        safe_search: true
+      }),
+      signal: AbortSignal.timeout(15000) // give up after 15 seconds
+    });
+
+    if (tavilyResponse.status === 401) {
+      console.error("Tavily rejected the key:", await tavilyResponse.text());
+      sendJson(response, 502, { error: "The search key was rejected. Check TAVILY_API_KEY on the server." });
+      return;
+    }
+    if (tavilyResponse.status === 429) {
+      sendJson(response, 429, { error: "Too many searches at once. Wait a few seconds and try again." });
+      return;
+    }
+    if (tavilyResponse.status === 432 || tavilyResponse.status === 433) {
+      console.error("Tavily usage limit reached:", await tavilyResponse.text());
+      sendJson(response, 429, { error: "This month's free searches are used up. Try again next month." });
+      return;
+    }
+    if (!tavilyResponse.ok) {
+      console.error("Tavily error:", tavilyResponse.status, await tavilyResponse.text());
+      sendJson(response, 502, { error: "The recipe search didn't work. Check the server terminal." });
+      return;
+    }
+
+    const data = await tavilyResponse.json();
+    const rawResults = Array.isArray(data.results) ? data.results : [];
+    const results = rawResults.map(toRecipeResult).filter(Boolean).slice(0, 8);
+
+    const payload = { query: searchText, results };
+    searchCache.set(searchText.toLowerCase(), { time: Date.now(), data: payload });
+    if (searchCache.size > 200) searchCache.delete(searchCache.keys().next().value);
+
+    sendJson(response, 200, payload);
+  } catch (error) {
+    console.error(error);
+    sendJson(response, 502, { error: "The recipe search didn't work. Check the server terminal." });
+  }
+}
+
 // ---------- static files (pages, CSS, JS, images) ----------
 
 function serveFile(request, response) {
@@ -262,6 +417,10 @@ const server = http.createServer((request, response) => {
     handleRecipes(request, response);
     return;
   }
+  if (request.method === "POST" && pathname === "/api/search-recipes") {
+    handleSearchRecipes(request, response);
+    return;
+  }
   serveFile(request, response);
 });
 
@@ -271,5 +430,8 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log(`Plateful is running: http://localhost:${PORT}`);
   if (!process.env.GEMINI_API_KEY) {
     console.warn("Heads up: GEMINI_API_KEY is not set, so scans and recipes will fail.");
+  }
+  if (!process.env.TAVILY_API_KEY) {
+    console.warn("Heads up: TAVILY_API_KEY is not set, so the Find Recipes page can't search.");
   }
 });

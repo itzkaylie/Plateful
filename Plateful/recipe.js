@@ -36,6 +36,11 @@ function recipeCard(recipe, extraButtons) {
   const card = make("article", "recipe-card");
   card.append(make("h3", "", recipe.name));
 
+  // Saved from the Find Recipes page: credit the website.
+  if (recipe.url && recipe.site) {
+    card.append(make("p", "search-source", `Recipe from ${recipe.site}`));
+  }
+
   const missing = recipe.missing || [];
   if (missing.length > 0) {
     card.append(make("p", "missing-label", `Missing (${missing.length}):`));
@@ -70,7 +75,9 @@ function recipeCard(recipe, extraButtons) {
 // ---------- step 3: tonight's ideas ----------
 
 function sameRecipe(a, b) {
-  return a && b && a.name === b.name;
+  if (!a || !b) return false;
+  if (a.url || b.url) return a.url === b.url; // web recipes: same link = same recipe
+  return a.name === b.name;
 }
 
 function showTonight() {
@@ -211,7 +218,7 @@ function addMissing(recipe) {
 function showBook() {
   const book = getBook();
   if (book.length === 0) {
-    savedRecipesBox.replaceChildren(make("p", "hint", "No saved recipes yet. Pick one above and press “Save to recipe book”."));
+    savedRecipesBox.replaceChildren(make("p", "hint", "No saved recipes yet. Pick one above and press “Save to recipe book”, or save one from the Find recipes page."));
     return;
   }
   savedRecipesBox.replaceChildren(
@@ -231,6 +238,14 @@ function showBook() {
           const added = addToShopping(recipe.missing);
           showToast(added > 0 ? `Added ${added} items!` : "Those are already on your list.");
         }));
+      }
+      // Web recipes: a link to read it on the original website.
+      if (recipe.url) {
+        const open = make("a", "btn small primary", `Read it on ${recipe.site || "the website"} ↗`);
+        open.href = recipe.url;
+        open.target = "_blank";
+        open.rel = "noopener noreferrer";
+        buttons.unshift(open);
       }
       return recipeCard(recipe, buttons);
     })

@@ -6,122 +6,333 @@
     <title>Welcome to Plateful</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- Same shared styles as the kitchen and fridge pages (colors, .panel, .btn).
+         This page only READS style.css; it doesn't change it. -->
+    <link rel="stylesheet" href="style.css">
+
     <style>
-       body {
-        margin: 0;
-        padding: 0;
-        height: 200vh;
-        overflow-x: hidden;
-        font-family: "Nunito", system-ui, sans-serif;
-        }
-        /* The big "Plateful" word, filled with the dessert photo. */
-        .background {
-            background-image: url("background01.jpg");
-            background-size: cover;
-            background-position: 50% 50%;
-            height: 255vh;
-            font-weight: 900;
-            /* Scales with the screen: huge on laptops, still fits on phones. */
-            font-size: clamp(5rem, 22vw, 23rem);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Title-screen styles.
+           Every class here starts with "title-", so nothing on the
+           kitchen, fridge or recipe pages is affected. */
+
+        .title-screen {
             position: relative;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
         }
-        .background::before{
-            content: '';
-            background-size: cover;
-            background-image:inherit;
-            background-position: 50% 50%;
+
+        /* ---------- the kitchen picture ---------- */
+
+        /* On phones: a framed picture under the welcome card. */
+        .title-scene {
+            order: 2;                      /* show it after the card on phones */
+            margin: 0 16px 24px;
+            border: 4px solid var(--ink);
+            box-shadow: 6px 6px 0 rgba(35, 80, 107, 0.35);
+            overflow: hidden;
+        }
+
+        /* The art keeps the kitchen picture's shape, so the fridge and photo
+           always line up with the drawing (positions are in %). */
+        .title-art {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1536 / 865;
+        }
+
+        .title-art > img { position: absolute; display: block; }
+
+        .title-art .title-kitchen { inset: 0; width: 100%; height: 100%; }
+
+        /* Same spot as on the kitchen page, so walking in feels seamless. */
+        .title-fridge { left: 27%; bottom: 0; width: 20.5%; height: auto; }
+
+        /* The dessert collage, now a little scrapbook photo taped to the wall. */
+        .title-photo {
+            position: absolute;
+            left: 3.5%;
+            top: 40%;
+            width: 9%;
+            margin: 0;
+            padding: 6px 6px 0;
+            background: #fff;
+            border: 2px solid var(--ink);
+            box-shadow: 3px 3px 0 rgba(35, 80, 107, 0.35);
+            transform: rotate(-5deg);
+        }
+
+        .title-photo img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            object-position: 50% 15%;  /* show the cookies and cupcakes */
+        }
+
+        .title-photo figcaption {
+            padding: 4px 0 6px;
+            font-size: clamp(0.5rem, 0.8vw, 0.75rem);
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2;
+            color: var(--ink);
+        }
+
+        /* A strip of washi tape holding the photo up. */
+        .title-photo::before {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            width: 46%;
+            height: 14px;
+            background: rgba(232, 190, 120, 0.85);
+            transform: translateX(-50%) rotate(3deg);
+        }
+
+        /* ---------- the welcome card ---------- */
+
+        .title-content {
+            position: relative;
+            z-index: 1;
+            order: 1;
+            padding: 36px 16px 20px;
+        }
+
+        .title-card {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 36px 22px 22px;
+            animation: title-pop 0.35s steps(4) both;
+        }
+
+        @keyframes title-pop {
+            from { transform: translateY(16px); opacity: 0; }
+        }
+
+        /* "Hello! Byte & Bite" sits on the top edge like a game label. */
+        .title-hello {
             position: absolute;
             top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: -99;
-        }
-        h1{
-            position:absolute;
-            text-align:center;
-            width:100%;
-            margin-top: 24px;
-            letter-spacing: 10px;
-            color: #fff;
-            font-size: clamp(1.6rem, 5vw, 3rem);
-            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        }
-        h2{
-            position:absolute;
-            letter-spacing: 2px;
-            top:120vh;
-            width: min(60%, 760px);
-            color: #fff;
             left: 50%;
-            transform: translateX(-50%);
-            padding:30px;
+            transform: translate(-50%, -55%);
             margin: 0;
-            background-color: rgba(0,0,0,0.3);
-            font-size: clamp(1.05rem, 2.4vw, 1.6rem);
-            line-height: 1.5;
+            padding: 8px 14px;
+            border: 3px solid var(--peach);
+            background: var(--ink);
+            color: #fff;
+            font: clamp(0.6rem, 1.6vw, 0.8rem) / 1.4 var(--pixel-font);
+            letter-spacing: 1px;
+            white-space: nowrap;
+            box-shadow: 4px 4px 0 rgba(35, 80, 107, 0.35);
         }
-        /* The Start! button, centred under the welcome text. */
-        .button {
-            position: absolute;
-            top: 150vh;
-            left: 50%;
-            transform: translateX(-50%);
-            display: inline-block;
-            min-width: 200px;
-            padding: 14px 24px;
-            background-color: #86CEFF;
-            color: white;
-            font-family: "Press Start 2P", monospace;
-            font-size: clamp(1.1rem, 3vw, 1.8rem);
-            text-decoration: none;
-            text-shadow: 2px 2px 0 #23506b;
-            border: 4px solid #23506b;
-            box-shadow: 5px 5px 0 #23506b;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:focus-visible { outline: 4px solid #ffd84d; outline-offset: 4px; }
-        .button:active { transform: translate(calc(-50% + 3px), 3px); box-shadow: 2px 2px 0 #23506b; }
 
-        @media (max-width: 600px) {
-            h2 { width: calc(100% - 32px); padding: 20px; box-sizing: border-box; }
+        /* The big "Plateful" logo, chunky pixel letters with a peach + salmon shadow. */
+        .title-logo {
+            margin: 6px 0 16px;
+            text-align: center;
+            /* Press Start 2P letters are 1em wide, so 8.5vw keeps
+               all 8 letters inside the card even on small phones. */
+            font: clamp(1.5rem, 8.5vw, 4rem) / 1.1 var(--pixel-font);
+            letter-spacing: 1px;
+            color: var(--ink);
+            text-shadow: 3px 3px 0 var(--peach), 6px 6px 0 var(--salmon);
+        }
+
+        .title-welcome {
+            margin: 0 0 18px;
+            font-size: clamp(1rem, 2.2vw, 1.15rem);
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .title-start-row { text-align: center; }
+
+        .title-start {
+            min-height: 56px;
+            padding: 12px 26px;
+            font-size: 1.15rem;
+        }
+
+        /* The little ▶ arrow nudges forward, like a game menu cursor. */
+        .title-start .title-arrow {
+            display: inline-block;
+            animation: title-nudge 1s steps(2) infinite;
+        }
+
+        @keyframes title-nudge {
+            50% { transform: translateX(4px); }
+        }
+
+        .title-next {
+            margin: 10px 0 0;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #43596a;
+        }
+
+        /* ---------- tonight's quest preview (no progress, just the plan) ---------- */
+
+        .title-quest {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 3px dashed var(--cream-dark);
+        }
+
+        .title-quest h2 {
+            margin: 0 0 10px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+
+        .title-quest ol {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .title-quest li {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 6px;
+            border: 3px solid var(--ink);
+            background: #fff;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            line-height: 1.25;
+        }
+
+        .title-quest-icon {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 40px;
+        }
+
+        .title-quest-icon img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+
+        .title-heart {
+            font: 1.7rem var(--pixel-font);
+            color: var(--salmon);
+            text-shadow: 2px 2px 0 var(--ink);
+        }
+
+        .title-step-num {
+            font: 0.6rem var(--pixel-font);
+            color: #5c6f7c;
+        }
+
+        /* Very narrow phones: stack the quest steps. */
+        @media (max-width: 380px) {
+            .title-quest ol { grid-template-columns: 1fr; }
+            .title-quest li { flex-direction: row; text-align: left; }
+            .title-photo figcaption { display: none; }
+        }
+
+        /* ---------- laptops and big tablets ---------- */
+        /* The kitchen fills the whole screen behind the card, like a game title screen. */
+        @media (min-width: 900px) {
+            .title-screen { justify-content: center; }
+
+            .title-scene {
+                position: absolute;
+                inset: 0;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                container-type: size;   /* lets .title-art size itself to the screen */
+            }
+
+            /* Big enough to cover the screen, anchored to the floor and left wall,
+               so the fridge stays in view. */
+            .title-art {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: max(100cqw, 177.57cqh);
+            }
+
+            .title-content {
+                width: min(46vw, 600px);
+                margin-left: auto;
+                margin-right: 4vw;
+                padding: 48px 0;
+            }
+
+            .title-logo { font-size: clamp(2.4rem, 4.4vw, 4rem); }
         }
     </style>
 </head>
 
 <body>
-    <h1>Hello!<br />Byte & Bite</h1>
-    <br>
-    <div class="background"><span>Plateful</span></div>
-    <h2>
-        Welcome to Plateful! Discover recipes with the ingredients you have in your fridge,
-        find what you're missing for recipes you like, and add it all to your cart — in one place, Plateful.
-    </h2>
+    <main class="title-screen">
 
-    <div style="text-align: center; width: 100%; margin: 0 auto;">
-        <a href="main.html" class="button">Start!</a>
-    </div>
+        <!-- Decorative kitchen art (screen readers skip it) -->
+        <div class="title-scene" aria-hidden="true">
+            <div class="title-art">
+                <img class="title-kitchen pixel" src="background.png" alt="" width="1536" height="865">
+                <img class="title-fridge pixel" src="fridgeclosed.png" alt="" width="544" height="1024">
+                <figure class="title-photo">
+                    <img src="background01.jpg" alt="" width="1080" height="1920">
+                    <figcaption>Byte &amp; Bite faves</figcaption>
+                </figure>
+            </div>
+        </div>
 
-    <script>
-        // Moves the dessert photo inside the "Plateful" letters as you scroll.
-        const background = document.querySelector(".background")
-        document.addEventListener('scroll', () => {
-            const scrollY = window.scrollY
+        <!-- The title card -->
+        <div class="title-content">
+            <section class="panel title-card" aria-labelledby="title-logo">
+                <p class="title-hello">Hello! Byte &amp; Bite</p>
 
-            if(scrollY !== 0){
-                background.style.backgroundPosition = `calc(50% + ${scrollY}px) calc(50% + ${scrollY}px)`;
-            }else{
-                background.style.backgroundPosition = '';
-            }
-        });
-    </script>
+                <h1 class="title-logo" id="title-logo">Plateful</h1>
 
+                <p class="title-welcome">
+                    Welcome to Plateful! Discover recipes with the ingredients you have in your fridge,
+                    find what you're missing for recipes you like, and add it all to your shopping list,
+                    all in one place: Plateful.
+                </p>
+
+                <!-- The one main action: walk into the kitchen -->
+                <div class="title-start-row">
+                    <a href="main.html" class="btn primary title-start">
+                        Start cooking! <span class="title-arrow" aria-hidden="true">▶</span>
+                    </a>
+                </div>
+                <p class="title-next">Next: tap the fridge in the kitchen to scan what's inside.</p>
+
+                <!-- A preview of the quest. Nothing is ticked off here; that happens in the kitchen. -->
+                <div class="title-quest">
+                    <h2 class="pixel-title">Tonight's quest</h2>
+                    <ol>
+                        <li>
+                            <span class="title-quest-icon"><img class="pixel" src="camera.png" alt="" width="133" height="104"></span>
+                            <span><span class="title-step-num">1</span><br>Scan the fridge</span>
+                        </li>
+                        <li>
+                            <span class="title-quest-icon"><img class="pixel" src="recipe book.png" alt="" width="306" height="215"></span>
+                            <span><span class="title-step-num">2</span><br>Choose a recipe</span>
+                        </li>
+                        <li>
+                            <span class="title-quest-icon"><span class="title-heart" aria-hidden="true">♥</span></span>
+                            <span><span class="title-step-num">3</span><br>Save a favorite</span>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+        </div>
+
+    </main>
 </body>
 </html>

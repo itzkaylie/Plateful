@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plateful · Recipe book</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="shared.js" defer></script>
+  <script src="recipe.js" defer></script>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">Plateful<small>by Byte &amp; Bite</small></a>
+    <nav class="topnav" aria-label="Pages">
+      <a href="main.html">Kitchen</a>
+      <a href="fridge.html">Fridge</a>
+      <a href="recipe.html" aria-current="page">Recipe book</a>
+    </nav>
+  </header>
+
+  <main class="page with-side">
+    <div>
+      <div class="panel book-header">
+        <img class="pixel" src="recipe book.png" alt="" width="306" height="215">
+        <div>
+          <h1 class="pixel-title">The recipe book</h1>
+          <nav class="section-nav" aria-label="Recipe book sections">
+            <a class="btn small secondary" href="#tonight">Tonight's ideas</a>
+            <a class="btn small secondary" href="#book">Saved recipes</a>
+            <a class="btn small secondary" href="#shopping">Shopping list</a>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Steps 3 and 4 -->
+      <section class="panel" id="tonight" aria-labelledby="tonight-title">
+        <h2 id="tonight-title" class="pixel-title">3 · Choose a recipe</h2>
+        <p class="hint">Your ingredients:</p>
+        <ul class="ingredient-list" id="have-list"></ul>
+        <p class="hint" id="need-scan" hidden>
+          Your fridge is still a mystery! <a href="fridge.html">Scan the fridge first</a>.
+        </p>
+        <div class="btn-row">
+          <button class="btn primary" id="get-recipes" type="button">Find recipes</button>
+        </div>
+        <p class="status" id="recipe-status" role="status"></p>
+        <div id="recipes"></div>
+      </section>
+
+      <section class="panel" id="book" aria-labelledby="book-title">
+        <h2 id="book-title" class="pixel-title">Saved recipes</h2>
+        <div id="saved-recipes"></div>
+      </section>
+
+      <section class="panel" id="shopping" aria-labelledby="shopping-title">
+        <h2 id="shopping-title" class="pixel-title">Shopping list</h2>
+        <ul class="shopping-list" id="shopping-list"></ul>
+        <p class="hint" id="shopping-empty">Your list is empty. Add missing ingredients from a recipe, or type your own.</p>
+        <form class="add-form" id="shopping-form">
+          <label class="sr-only" for="shopping-input">Add something to buy</label>
+          <input id="shopping-input" type="text" placeholder="Add something to buy" maxlength="60" autocomplete="off">
+          <button class="btn secondary" type="submit">Add</button>
+        </form>
+        <div class="btn-row">
+          <button class="btn small secondary" id="clear-checked" type="button">Remove ticked items</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <section class="panel" aria-labelledby="quest-title">
+        <h2 id="quest-title" class="pixel-title">Tonight's quest</h2>
+        <div id="quest"></div>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

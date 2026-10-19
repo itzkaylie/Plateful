@@ -1,0 +1,19 @@
+{
+  "name": "plateful",
+  "version": "1.0.0",
+  "description": "Plateful by Byte & Bite: scan your fridge, pick a recipe, build a shopping list.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file=.env server.js"
+  },
+  "engines": {
+    "node": ">=20.6"
+  },
+  "keywords": [],
+  "author": "Byte & Bite",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^2.30.0"
+  }
+}

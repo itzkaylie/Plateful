@@ -1,0 +1,442 @@
+/* Plateful styles
+   ---------------
+   Shared by main.html (kitchen), fridge.html and recipe.html.
+   Colors are picked from the pixel art so the panels feel part of the game. */
+
+:root {
+  --sky: #86ceff;          /* kitchen wall (same blue as the original pages) */
+  --teal: #3f7fa0;         /* cupboards */
+  --ink: #23506b;          /* dark outlines and text */
+  --cream: #fbf3dc;        /* panels */
+  --cream-dark: #efe1b8;
+  --peach: #e8be78;        /* fridge */
+  --salmon: #d9877f;       /* fridge trim / plant pot */
+  --leaf: #5f9e4f;         /* plant leaves, used for "done" */
+  --leaf-light: #dcefcf;
+  --text: #1f3442;
+  --pixel-font: "Press Start 2P", ui-monospace, monospace;
+  --body-font: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+/* Make sure anything marked "hidden" really is hidden, even buttons. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--body-font);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--sky);
+}
+
+img { max-width: 100%; height: auto; }
+
+/* Pixel art should stay crisp, not blurry, when it's scaled up. */
+.pixel { image-rendering: pixelated; }
+
+/* Hides something visually but keeps it for screen readers and the keyboard. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* A clear focus ring for keyboard users. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+.sr-only:focus-visible + label {
+  outline: 4px solid #ffd84d;
+  outline-offset: 3px;
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.logo {
+  font-family: var(--pixel-font);
+  font-size: 1.1rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 2px;
+}
+
+.logo small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  color: var(--sky);
+}
+
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.topnav a {
+  padding: 8px 12px;
+  border: 3px solid transparent;
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.topnav a[aria-current="page"] {
+  border-color: var(--sky);
+  background: rgba(134, 206, 255, 0.15);
+}
+
+/* ---------- page layout ---------- */
+
+.page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+/* On laptops: big picture on the left, quest panel on the right. */
+@media (min-width: 900px) {
+  .page.with-side {
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    align-items: start;
+  }
+  .page.with-side .side { position: sticky; top: 16px; }
+}
+
+/* ---------- panels and buttons ---------- */
+
+.panel {
+  background: var(--cream);
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(35, 80, 107, 0.35);
+  padding: 16px;
+}
+
+.panel + .panel { margin-top: 16px; }
+
+h1, h2, h3 { line-height: 1.3; margin: 0 0 12px; }
+
+.pixel-title {
+  font-family: var(--pixel-font);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  color: var(--ink);
+}
+
+.hint { margin: 0 0 12px; color: #43596a; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;          /* big enough to tap with a thumb */
+  padding: 10px 18px;
+  border: 3px solid var(--ink);
+  background: var(--peach);
+  color: var(--text);
+  font: 800 1rem var(--body-font);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+.btn.primary { background: var(--leaf); color: #fff; }
+.btn.secondary { background: #fff; }
+.btn.small { min-height: 40px; padding: 6px 12px; font-size: 0.95rem; }
+.btn[disabled], .btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+/* ---------- the illustrated "stage" (kitchen picture, open fridge) ---------- */
+
+.stage {
+  position: relative;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(35, 80, 107, 0.35);
+  background: var(--sky);
+  overflow: hidden;
+}
+
+.stage-bg { display: block; width: 100%; height: auto; }
+
+/* A clickable object in the picture (fridge, recipe book, camera). */
+.hotspot {
+  position: absolute;
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hotspot img { display: block; width: 100%; height: auto; }
+
+.hotspot:active img { transform: translateY(2px); }
+
+/* Always-visible label on each hotspot, so no hover is needed. */
+.hotspot-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 8px;
+  border: 3px solid var(--ink);
+  background: #fff;
+  font-weight: 800;
+  font-size: clamp(0.7rem, 1.6vw, 1rem);
+}
+
+/* Small screens: thinner label borders so they fit next to each other. */
+@media (max-width: 600px) {
+  .hotspot-label { padding: 2px 5px; border-width: 2px; }
+}
+
+/* The bouncing "!" that points at the next thing to do. */
+.quest-marker {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: none;
+  width: clamp(20px, 3vw, 32px);
+  height: clamp(20px, 3vw, 32px);
+  border: 3px solid var(--ink);
+  background: #ffd84d;
+  font: clamp(0.6rem, 1.2vw, 1rem) var(--pixel-font);
+  line-height: clamp(14px, 2.4vw, 26px);
+  text-align: center;
+  animation: bob 1s steps(2) infinite;
+}
+
+.hotspot.is-next .quest-marker { display: block; }
+
+@keyframes bob {
+  50% { transform: translateY(-6px); }
+}
+
+/* Kitchen positions, in % of the kitchen picture, so they scale with it. */
+.kitchen .fridge-spot { left: 27%; bottom: 0; width: 20.5%; }
+.kitchen .fridge-spot .hotspot-label { top: 18%; }
+.kitchen .book-spot { left: 51.5%; top: 54%; width: 15%; }
+.kitchen .book-spot .hotspot-label { top: 100%; margin-top: 4px; }
+
+/* Open-fridge picture: camera sits on the empty middle shelf. */
+.open-fridge .camera-spot { left: 44.5%; top: 34%; width: 10%; }
+.open-fridge .camera-spot .hotspot-label { top: 100%; margin-top: 4px; }
+
+/* ---------- tonight's quest tracker ---------- */
+
+.quest-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+.quest-step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 3px solid transparent;
+}
+
+.quest-step a { color: inherit; font-weight: 700; }
+
+.quest-check {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--ink);
+  background: #fff;
+  font: 0.75rem var(--pixel-font);
+}
+
+.quest-step.done .quest-check { background: var(--leaf); color: #fff; }
+.quest-step.done .quest-text { text-decoration: line-through; color: #5c6f7c; }
+.quest-step.current { border-color: var(--ink); background: #fff7d6; }
+.quest-step.current .quest-check { background: #ffd84d; }
+
+.quest-progress {
+  height: 16px;
+  margin: 12px 0 4px;
+  border: 3px solid var(--ink);
+  background: #fff;
+}
+
+.quest-progress span {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--leaf) 0 12px, #74b562 12px 24px);
+  transition: width 0.4s steps(4);
+}
+
+.quest-complete {
+  margin-top: 12px;
+  padding: 10px;
+  border: 3px dashed var(--leaf);
+  background: var(--leaf-light);
+  font-weight: 800;
+}
+
+/* ---------- toast ("Nice find!") ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 10;
+  max-width: calc(100% - 32px);
+  padding: 12px 18px;
+  border: 4px solid var(--ink);
+  background: #ffd84d;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-weight: 800;
+  transform: translate(-50%, 0);
+  animation: pop-in 0.25s steps(3);
+}
+
+.toast[hidden] { display: none; }
+
+@keyframes pop-in {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+}
+
+/* ---------- fridge page ---------- */
+
+.preview {
+  display: block;
+  max-height: 260px;
+  margin: 12px 0;
+  border: 3px solid var(--ink);
+}
+
+.status { min-height: 1.5em; margin: 8px 0 0; font-weight: 700; }
+.status.error { color: #a3352c; }
+
+.ingredient-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 4px 12px;
+  border: 3px solid var(--ink);
+  background: #fff;
+  font-weight: 700;
+}
+
+.chip.plain { padding-right: 12px; }
+
+.chip button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: var(--cream-dark);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.add-form { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.add-form input,
+.text-input {
+  flex: 1 1 180px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 3px solid var(--ink);
+  font: 1rem var(--body-font);
+}
+
+.qr-box {
+  display: inline-block;
+  padding: 10px;
+  background: #fff;
+  border: 3px solid var(--ink);
+}
+
+.qr-box img, .qr-box canvas { display: block; max-width: 100%; height: auto; }
+
+/* ---------- recipe page ---------- */
+
+.recipe-card {
+  border: 3px solid var(--ink);
+  background: #fff;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.recipe-card.chosen { border-width: 4px; background: #fff7d6; }
+
+.recipe-card h3 { margin-bottom: 8px; }
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  background: var(--leaf);
+  color: #fff;
+  font: 0.6rem var(--pixel-font);
+  vertical-align: middle;
+}
+
+.missing-label { font-weight: 800; margin: 8px 0 4px; }
+
+.recipe-card details { margin-top: 8px; }
+.recipe-card summary { cursor: pointer; font-weight: 800; min-height: 32px; }
+.recipe-card ol { padding-left: 1.4em; }
+
+.shopping-list { list-style: none; margin: 0; padding: 0; }
+
+.shopping-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 2px dashed var(--cream-dark);
+}
+
+.shopping-list label { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
+.shopping-list input[type="checkbox"] { width: 24px; height: 24px; accent-color: var(--leaf); }
+.shopping-list .got-it { text-decoration: line-through; color: #6b7c88; }
+
+.book-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.book-header img { width: 120px; flex: none; }
+
+.section-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Turn off the bouncing and sliding for people who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

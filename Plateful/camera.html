@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plateful · Camera</title>
+  <!-- The camera now lives inside the fridge page. This page just sends
+       you there (and keeps ?session=... so the QR link still works). -->
+  <script>
+    window.location.replace("fridge.html" + window.location.search);
+  </script>
+</head>
+<body>
+  <p><a href="fridge.html">Go to the fridge camera</a></p>
+</body>
+</html>
